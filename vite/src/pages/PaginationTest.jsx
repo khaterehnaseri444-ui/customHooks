@@ -18,15 +18,16 @@ function PaginationTest() {
   };
 
   return (
-    <div className="w-full h-200 bg-lime-300 flex items-center justify-center flex-col">
-      <h1>Test Custom Hook</h1>
-      <div className="w-full h-50 bg-sky-400 flex items-center justify-center gap-2">
+    <div className="w-full h-200 flex items-center justify-center flex-col">
+      <h1 className="text-[30px]">Test Custom Hook</h1>
+      <div className="w-full h-50 flex items-center justify-center gap-2">
         <button
           type="button"
           onClick={() => goPageHandler(page - 1)}
           disabled={page === 1}
+          className="text-[20px] cursor-pointer"
         >
-          prev
+          {"<"}
         </button>
         {paginationItems.map((item, index) => {
           if (item === "...") {
@@ -38,7 +39,7 @@ function PaginationTest() {
               key={item}
               type="button"
               onClick={() => goPageHandler(item)}
-              className={isActivePage ? "font-bold bg-blue-500 text-white" : ""}
+              className={isActivePage ? "font-bold" : "cursor-pointer"}
             >
               {item}
             </button>
@@ -49,8 +50,9 @@ function PaginationTest() {
           type="button"
           onClick={() => goPageHandler(page + 1)}
           disabled={page === totalPages}
+          className="text-[20px] cursor-pointer"
         >
-          next
+          {">"}
         </button>
       </div>
     </div>
