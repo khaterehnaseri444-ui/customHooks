@@ -1,78 +1,79 @@
-import { useMemo } from "react";
+import React from "react";
+import usePaginate from "./usePaginate";
 
-function range(start, end) {
-  const out = [];
-  for (let i = start; i <= end; i++) {
-    out.push(i);
-  }
-  return out;
-}
-
-function getPaginationItems({ totalPages, currentPage, siblingCount = 1 }) {
-  const items = [];
-
-  if (totalPages <= 2 * siblingCount + 3) {
-    return range(1, totalPages);
-  }
-
-  const firstPage = 1;
-  const lastPage = totalPages;
-
-  const leftSibling = Math.max(currentPage - siblingCount, 2);
-  const rightSibling = Math.min(currentPage + siblingCount, totalPages - 1);
-
-  const showLeftEllipsis = leftSibling > 2;
-  const showRightEllipsis = rightSibling < totalPages - 1;
-
-  items.push(firstPage);
-
-  if (showLeftEllipsis) {
-    items.push("...");
-  } else {
-    items.push(...range(2, leftSibling));
-  }
-
-  items.push(...range(leftSibling, rightSibling));
-
-  if (showRightEllipsis) {
-    items.push("...");
-  } else {
-    items.push(...range(rightSibling + 1, lastPage - 1));
-  }
-
-  items.push(lastPage);
-
-  return [...new Set(items)];
-}
-
-function usePagination({ totalPages, currentPage, siblingCount = 1 }) {
-  const paginationItems = useMemo(() => {
-    return getPaginationItems({ totalPages, currentPage, siblingCount });
-  }, [totalPages, currentPage, siblingCount]);
-
-  const goToPage = (p) => {
-    if (typeof p !== "number") return;
-    console.log(`Navigating to page: ${p}`);
-  };
-
-  const next = () => {
-    if (currentPage < totalPages) {
-      goToPage(currentPage + 1);
+const Pagination = ({
+  currentPage,
+  totalPages,
+  onPageChange,
+  pagesToShow = 3,
+}) => {
+  const pages = usePaginate({ currentPage, totalPages, pagesToShow });
+  const pageClickHandler = (page) => {
+    if (page !== currentPage && page >= 1 && page <= totalPages) {
+      onPageChange(page);
     }
   };
 
-  const prev = () => {
+  const prevClick = () => {
     if (currentPage > 1) {
-      goToPage(currentPage - 1);
+      onPageChange(currentPage - 1);
     }
   };
 
-  return {
-    paginationItems,
-    goToPage,
-    next,
-    prev,
+  const nextClick = () => {
+    if (currentPage < totalPages) {
+      onPageChange(currentPage + 1);
+    }
   };
-}
-
-export default usePagination;
+  return (
+    <div>
+      <button
+        onClick={prevClick}
+        disabled={currentPage === 1}
+        className={`px-3 py-1 rounded-md border text-sm transition-colors ${
+          currentPage === 1
+            ? "bg-gray-100 text-gray-400 border-gray-200 cursor-not-allowed"
+            : "bg-white text-gray-700 border-gray-300 hover:bg-gray-50"
+        }`}
+      >
+        prev
+      </button>
+      <ul>
+        {pages.map((item, index) => {
+          if (item.type === "ellipsis") {
+            return <li>...</li>;
+          }
+          if (item.type === "page") {
+            return (
+              <li>
+                <button
+                  onClick={() => pageClickHandler(item.page)}
+                  className={`px-3 py-1 rounded-md border text-sm min-w-8 transition-colors ${
+                    item.active
+                      ? "bg-blue-600 text-white border-blue-600"
+                      : "bg-white text-gray-700 border-gray-300 hover:bg-gray-50"
+                  }`}
+                >
+                  {item.page}
+                </button>
+              </li>
+            );
+          }
+          return null;
+        })}
+      </ul>
+      <button
+        onClick={nextClick}
+        disabled={currentPage === totalPages}
+        className={`px-3 py-1 rounded-md border text-sm transition-colors ${
+          currentPage === totalPages
+            ? "bg-gray-100 text-gray-400 border-gray-200 cursor-not-allowed"
+            : "bg-white text-gray-700 border-gray-300 hover:bg-gray-50"
+        }`}
+      >
+        next
+      </button>
+    </div>
+  );
+};
+export default Pagination;
